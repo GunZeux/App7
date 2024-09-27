@@ -11,14 +11,19 @@ view = st.selectbox("Select data to view:", ["Temperature", "Sky"], key="view")
 st.subheader(f"{view} for the next {days} days(s) in {location}")
 
 if location:
-    filtered_data = get_data(location, days, view)
-    if view == "Temperature":
-        final_data = [sub_val["main"]["temp"] for sub_val in filtered_data]
-        date = [sub_val["dt_txt"] for sub_val in filtered_data]
-        figure = px.line(x=date, y=final_data,
-                         labels={"x": "Date", "y": "Temperature (C)"})
-        st.plotly_chart(figure)
+    try:
+        filtered_data = get_data(location, days, view)
+        if view == "Temperature":
+            final_data = [sub_val["main"]["temp"]/10 for sub_val in filtered_data]
+            date = [sub_val["dt_txt"] for sub_val in filtered_data]
+            figure = px.line(x=date, y=final_data,
+                             labels={"x": "Date", "y": "Temperature (C)"})
+            st.plotly_chart(figure)
 
-    else:
-        final_data = [sub_val["weather"][0]["main"] for sub_val
-                      in filtered_data]
+        else:
+            final_data = [sub_val["weather"][0]["main"] for sub_val
+                          in filtered_data]
+            image_list = [f"images/{name}.png" for name in final_data]
+            st.image(image_list, width=115)
+    except KeyError:
+        st.warning("Invalid Location")
